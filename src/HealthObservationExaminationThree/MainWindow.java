@@ -151,6 +151,11 @@ public class MainWindow extends JFrame {
         dateTextField.setVisible(false);
     }
     
+    /**
+     * Method to create objects for program from file from user specified file
+     * @param openFileName
+     * @throws JAXBException
+     */
     public void testXMLOpenFile(String openFileName) throws JAXBException
     {
             try {
@@ -167,6 +172,12 @@ public class MainWindow extends JFrame {
                     Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
                 }
     }    
+
+    /**
+     * Method to create an XML text file from user specified file.
+     * @param saveFileName
+     * @throws JAXBException
+     */
     public void testXMLSaveFile(String saveFileName) throws JAXBException
     {
         // create JAXB context and instantiate marshaller
@@ -207,6 +218,7 @@ public class MainWindow extends JFrame {
     /**
      * Main method to start the operation of application. Invokes MainWindow class constructor.
      * @param args the command line arguments
+     * @throws javax.xml.bind.JAXBException
      */
     public static void main(String[] args) throws JAXBException {
         // create instance of MainWindow
