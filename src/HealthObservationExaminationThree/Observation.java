@@ -22,8 +22,7 @@ class Observation
     * Observation class constructor.
     * Empty parameter list required by JAXB library
     * to construct objects from XML
-    */
-    
+    */   
     public Observation()
     {
         this(Calendar.getInstance().getTime(),"","",0.0);
@@ -121,9 +120,6 @@ class Observation
      */
     @Override
     public String toString() {
-    //        return "Observation{" + "entryTreatment=" + entryTreatment 
-    //                + ", entryDate=" + entryDate.getTime() + ", entryCondition=" 
-    //                + entryCondition + ", entryTemp=" + entryTemp + '}';
-            return  entryDate.getTime() +"        " + entryTemp ;
+            return  entryDate.getTime().toString() ;
     }   
 }
