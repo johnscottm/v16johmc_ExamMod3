@@ -2,6 +2,7 @@
  */
 package HealthObservationExaminationThree;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -41,7 +42,20 @@ class FeverFrame extends JFrame{
     * @param updateList is the array of type string to update the data
     */ 
     public void setFeverList(ArrayList updateList)
-    {    
-        feverList.setListData(updateList.toArray()); 
+    {   
+        //for each Observation in the updateList get the date and temp
+        // and build a string array of the data
+        // to use to set the feverList data to
+       ArrayList<String> feverListData = new ArrayList<String>();
+       DateFormat feverListDateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+    
+       for (Object loopObject : updateList)
+       {
+           Observation currentObservation = (Observation)loopObject;          
+           String newString = feverListDateFormat.format(currentObservation.getEntryDate().getTime()) + " "+
+                   currentObservation.getEntryTemp().toString();
+           feverListData.add(newString);
+       }
+       feverList.setListData(feverListData.toArray()); 
     }
 }
