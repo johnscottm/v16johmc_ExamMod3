@@ -47,12 +47,12 @@ class FeverFrame extends JFrame{
         // and build a string array of the data
         // to use to set the feverList data to
        ArrayList<String> feverListData = new ArrayList<String>();
-       DateFormat feverListDateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+       //DateFormat feverListDateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
     
        for (Object loopObject : updateList)
        {
            Observation currentObservation = (Observation)loopObject;          
-           String newString = feverListDateFormat.format(currentObservation.getEntryDate().getTime()) + " "+
+           String newString = currentObservation.getEntryDate().toString() + " "+
                    currentObservation.getEntryTemp().toString();
            feverListData.add(newString);
        }
