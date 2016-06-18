@@ -2,8 +2,9 @@
  */
 package HealthObservationExaminationThree;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
+//import java.util.Calendar;
+//import java.util.Date;
 
 /**
  * Observation class to hold health observation data and calculation methods.
@@ -14,7 +15,9 @@ class Observation
     //fields for health observation description
     private String entryTreatment;
 //        private Date entryDate;
-    private Calendar entryDate;
+    //private Calendar entryDate;
+    //private LocalDateTime entryDate;
+    private String entryDate;
     private String entryCondition ;
     private Double entryTemp;
  
@@ -25,9 +28,16 @@ class Observation
     */   
     public Observation()
     {
-        this(Calendar.getInstance().getTime(),"","",0.0);
+        //this(Calendar.getInstance().getTime(),"","",0.0);
+                this("","","",0.0);
+
     }
-    
+     public Observation(String sentDate, String enteredTreatment, String enteredCondition, Double enteredTemp) {
+        entryDate = sentDate;
+        entryTreatment = enteredTreatment; 
+        entryCondition = enteredCondition;
+        entryTemp = enteredTemp;                    
+    }   
     /**
     * Observation class constructor.
     * @param sentDate new value of entryDate
@@ -35,10 +45,12 @@ class Observation
     * @param enteredCondition new value of entryCondition
     * @param enteredTemp new value of entryTemp
     */   
-    public Observation(Date sentDate, String enteredTreatment, String enteredCondition, Double enteredTemp) {
+    public Observation(LocalDateTime sentDate, String enteredTreatment, String enteredCondition, Double enteredTemp) {
         entryCondition = enteredCondition;
-        entryDate = Calendar.getInstance();
-        entryDate.setTime(sentDate);
+        //entryDate = Calendar.getInstance();
+ //       entryDate = LocalDateTime.now();
+ //       entryDate.setTime(sentDate);
+        entryDate = sentDate.toString();
         entryTemp = enteredTemp;
         entryTreatment = enteredTreatment;                     
     }
@@ -49,7 +61,7 @@ class Observation
     * @param enteredTemp new value of entryTemp
     */
     public Observation(String enteredTreatment, String enteredCondition, Double enteredTemp) {
-        this(new Date(), enteredTreatment, enteredCondition, enteredTemp);                    
+        this(LocalDateTime.now(), enteredTreatment, enteredCondition, enteredTemp);                    
     }
 
 
@@ -65,7 +77,7 @@ class Observation
      * Get the value of entryDate
      * @return the value of entryDate
      */
-    public Calendar getEntryDate() {
+    public String getEntryDate() {
         return entryDate;
     }
     
@@ -86,7 +98,7 @@ class Observation
     /**
      * Set the value of entryDate
      */
-    public void setEntryDate(Calendar enteredDate) {
+    public void setEntryDate( String enteredDate) {
          entryDate = enteredDate;
     }
     
@@ -120,6 +132,6 @@ class Observation
      */
     @Override
     public String toString() {
-            return  entryDate.getTime().toString() ;
+            return  entryDate.toString() ;
     }   
 }
