@@ -8,8 +8,10 @@ import java.awt.event.*;
 
 import java.util.*;
 import java.util.Date;
+import java.util.Calendar;
 import java.io.*;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
@@ -82,10 +84,23 @@ public class MainWindow extends JFrame {
         //text display gui controls
         observationSelectionComboBox = new JComboBox();
         //create date and time selector
-        clockSpinner = new JSpinner (new SpinnerDateModel());
+        //get a Calendar object set to current time
+        Calendar calendarJSpinner = Calendar.getInstance();
+        //create date limits for SpinnerDateModel to limit JSpinner date selections
+        Date startingDateJSpinner = calendarJSpinner.getTime();
+        calendarJSpinner.add(Calendar.MONTH, -1);
+        Date earliestDate = calendarJSpinner.getTime();
+        calendarJSpinner.add(Calendar.MONTH, 1);
+        Date latestDate = calendarJSpinner.getTime();
+        SpinnerDateModel JSpinnerDateModel = new SpinnerDateModel(
+                startingDateJSpinner,earliestDate,latestDate,Calendar.YEAR);
+        //instantiate clockSpinner using created SpinnerDateModel object
+        clockSpinner = new JSpinner (JSpinnerDateModel);
         clockSpinner.setSize(dateTextField.getPreferredSize());
-        //JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(clockSpinner, "HH:mm");
-                //clockSpinner.setEditor(timeEditor);
+        //Set the clockSpinner to proper format and make it not editable to start
+        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(clockSpinner, "MMM dd, yyyy HH:mm");
+        timeEditor.getTextField().setEditable(false);
+        clockSpinner.setEditor(timeEditor);
         //add a layout manager
         healthPanel.setLayout(new BorderLayout());
         //create subpanels
@@ -156,43 +171,49 @@ public class MainWindow extends JFrame {
     /**
      * Method to create objects for program from file from user specified file
      * @param openFileName
-     * @throws JAXBException
      */
-    public void testXMLOpenFile(String openFileName) throws JAXBException
+    public void testXMLOpenFile(String openFileName)
     {
-            try {
-                    System.out.println("reading in file");
-                    File healthData = new File (openFileName);
-                    System.out.print(healthData);
-                    JAXBContext context = JAXBContext.newInstance(Observations.class );
-                    Unmarshaller unmarshaller = context.createUnmarshaller();
-                    observations = (Observations)unmarshaller.unmarshal(healthData);
-                    System.out.println("Observations created" );
-                    System.out.println(observations.getObservations().toString());
-
-                } catch (JAXBException ex) {
-                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        try 
+        {
+            System.out.println("reading in file");
+            File healthData = new File (openFileName);
+            System.out.print(healthData);
+            JAXBContext context = JAXBContext.newInstance(Observations.class );
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            observations = (Observations)unmarshaller.unmarshal(healthData);
+            System.out.println("Observations created" );
+            System.out.println(observations.getObservations().toString());
+        } 
+        catch (JAXBException ex) 
+        {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }    
 
     /**
      * Method to create an XML text file from user specified file.
      * @param saveFileName
-     * @throws JAXBException
      */
-    public void testXMLSaveFile(String saveFileName) throws JAXBException
+    public void testXMLSaveFile(String saveFileName) 
     {
-        // create JAXB context and instantiate marshaller
-        Marshaller observationsMarshaller ;
-        JAXBContext context = JAXBContext.newInstance(Observations.class);
-        observationsMarshaller = context.createMarshaller();
-        observationsMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);                                   
-        observationsMarshaller.marshal(observations, System.out);
-
-        // Write to File
-         System.out.println("save");
-         File healthData = new File(saveFileName);
-         observationsMarshaller.marshal(observations, healthData );
+        try
+        {
+            // create JAXB context and instantiate marshaller
+            Marshaller observationsMarshaller ;
+            JAXBContext context = JAXBContext.newInstance(Observations.class);
+            observationsMarshaller = context.createMarshaller();
+            observationsMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);                                   
+            observationsMarshaller.marshal(observations, System.out);
+            // Write to File
+             System.out.println("save");
+             File healthData = new File(saveFileName);
+             observationsMarshaller.marshal(observations, healthData );
+        }
+        catch (JAXBException ex) 
+        {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }        
     }
     
     /**
@@ -222,16 +243,17 @@ public class MainWindow extends JFrame {
      * @param args the command line arguments
      * @throws javax.xml.bind.JAXBException
      */
-    public static void main(String[] args) throws JAXBException {
+    public static void main(String[] args) throws JAXBException  
+    {
         // create instance of MainWindow
-        MainWindow healthWindow = new MainWindow(); 
-    
+        MainWindow healthWindow = new MainWindow();    
     }
     /**
     * openFile method creates JFileChooser object to get file name and invokes
     * testXMLOpenFile to open xml file
     */     
-    private void openFile() {        
+    private void openFile() 
+    {        
         JFileChooser openChoice = new JFileChooser();
         String openFileName= "";
 
@@ -240,18 +262,10 @@ public class MainWindow extends JFrame {
         {
             File healthData = openChoice.getSelectedFile();
             openFileName = healthData.getPath();                   
-        }
-        //error code if user cancels
-        
- /////////       
-        
-        try {
-            testXMLOpenFile( openFileName);
-        } catch (JAXBException ex) {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    updateGUI();    
-        }
+        }          
+        testXMLOpenFile(openFileName);
+        updateGUI();    
+    }
      /**
     * Save method creates JFileChooser object to get file name and invokes
     * testXMLSaveFile to write xml to file
@@ -265,11 +279,7 @@ public class MainWindow extends JFrame {
                 File healthData = saveChoice.getSelectedFile();
                 saveFileName = healthData.getPath();                   
             }
-            try {
-                testXMLSaveFile(saveFileName);
-            } catch (JAXBException ex) {
-                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            testXMLSaveFile(saveFileName);
         }
     /**
     * Setup method creates data structures, reads in data objects from file
@@ -290,13 +300,15 @@ public class MainWindow extends JFrame {
     /**
     * updateGUI method resets the observationSelectionComboBox GUI control with new data 
     */
-    private void updateGUI(){   
+    private void updateGUI(){ 
+        observations.sortObservationsByDate();
         observationSelectionComboBox.setModel(new DefaultComboBoxModel(((ArrayList)(observations.getObservations())).toArray()));
         observationSelectionComboBox.setSelectedIndex(-1);
         clearObservationTextFields();
         //update the fever window Jlist component datat
         feverWindow.setFeverList((ArrayList)observations.getObservations());
         observations.getObservationsAverageTemp();
+        observations.getObservationsHighestTemp();
     }
      /**
     * after cancelButton activated clear text fields, enable addButton
@@ -309,7 +321,7 @@ public class MainWindow extends JFrame {
         addButton.setEnabled(true);
         deleteButton.setEnabled(false);
         editButton.setEnabled(false);
-        cancelButton.setEnabled(false);
+        cancelButton.setEnabled(false);       
         updateGUI();
     }
      /**
@@ -327,6 +339,7 @@ public class MainWindow extends JFrame {
         addButton.setEnabled(true);
         dateTextField.setVisible(false);
         clockSpinner.setVisible(true);
+        clockSpinner.setEnabled(true);
     }
     /**
     * GUI method to delete Observation object data from selection by user
@@ -350,9 +363,10 @@ public class MainWindow extends JFrame {
         
         if(inputValidation())
         {
-            //create Observation object from text fields
+            //get Date object from JSpinner and convert to LocalDateTime object
             Date spinnerDate = (Date)clockSpinner.getValue();
             LocalDateTime passDate = LocalDateTime.ofInstant(spinnerDate.toInstant(), ZoneId.systemDefault());
+            //create Observation object from text fields
             Observation addedObservation = new Observation(
                     passDate,
                     treatmentTextField.getText(),//treatment
@@ -379,7 +393,8 @@ public class MainWindow extends JFrame {
         //update gui text controls with data from selected Observation object
         conditionTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryCondition());
         treatmentTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTreatment());
-        dateTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryDate().toString());
+        DateTimeFormatter customDate = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
+        dateTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryDate().format(customDate));
         temperTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTemp().toString());        
         //enable edit, delete button and disable add button
         editButton.setEnabled(true);
