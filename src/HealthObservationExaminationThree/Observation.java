@@ -3,6 +3,9 @@
 package HealthObservationExaminationThree;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 //import java.util.Calendar;
 //import java.util.Date;
 
@@ -14,10 +17,7 @@ class Observation
 {
     //fields for health observation description
     private String entryTreatment;
-//        private Date entryDate;
-    //private Calendar entryDate;
-    //private LocalDateTime entryDate;
-    private String entryDate;
+    private LocalDateTime entryDate;
     private String entryCondition ;
     private Double entryTemp;
  
@@ -29,15 +29,8 @@ class Observation
     public Observation()
     {
         //this(Calendar.getInstance().getTime(),"","",0.0);
-                this("","","",0.0);
-
-    }
-     public Observation(String sentDate, String enteredTreatment, String enteredCondition, Double enteredTemp) {
-        entryDate = sentDate;
-        entryTreatment = enteredTreatment; 
-        entryCondition = enteredCondition;
-        entryTemp = enteredTemp;                    
-    }   
+                this(LocalDateTime.now(),"","",0.0);
+    }  
     /**
     * Observation class constructor.
     * @param sentDate new value of entryDate
@@ -46,13 +39,10 @@ class Observation
     * @param enteredTemp new value of entryTemp
     */   
     public Observation(LocalDateTime sentDate, String enteredTreatment, String enteredCondition, Double enteredTemp) {
+        entryDate = sentDate;
+        entryTreatment = enteredTreatment; 
         entryCondition = enteredCondition;
-        //entryDate = Calendar.getInstance();
- //       entryDate = LocalDateTime.now();
- //       entryDate.setTime(sentDate);
-        entryDate = sentDate.toString();
-        entryTemp = enteredTemp;
-        entryTreatment = enteredTreatment;                     
+        entryTemp = enteredTemp;                  
     }
     /**
     * Observation class constructor.
@@ -77,7 +67,7 @@ class Observation
      * Get the value of entryDate
      * @return the value of entryDate
      */
-    public String getEntryDate() {
+    public LocalDateTime getEntryDate() {
         return entryDate;
     }
     
@@ -98,7 +88,9 @@ class Observation
     /**
      * Set the value of entryDate
      */
-    public void setEntryDate( String enteredDate) {
+    @XmlJavaTypeAdapter( LocalDateTimeAdapter.class )
+    @XmlElement( name = "Date" )
+    public void setEntryDate( LocalDateTime enteredDate) {
          entryDate = enteredDate;
     }
     
@@ -127,11 +119,12 @@ class Observation
     }
 
          /**
-     * Return a String description of the object with the entryDate and entryTemp
+     * Return a String description of the object with the entryDate 
      * @return String for Observation object field only for entryDate 
      */
     @Override
     public String toString() {
-            return  entryDate.toString() ;
+            DateTimeFormatter customDate = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
+            return  entryDate.format(customDate) ;
     }   
 }
