@@ -7,7 +7,9 @@ import javax.swing.*;
 import java.awt.event.*;
 
 import java.util.*;
+import java.util.Date;
 import java.io.*;
+import java.time.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
@@ -294,6 +296,7 @@ public class MainWindow extends JFrame {
         clearObservationTextFields();
         //update the fever window Jlist component datat
         feverWindow.setFeverList((ArrayList)observations.getObservations());
+        observations.getObservationsAverageTemp();
     }
      /**
     * after cancelButton activated clear text fields, enable addButton
@@ -348,8 +351,10 @@ public class MainWindow extends JFrame {
         if(inputValidation())
         {
             //create Observation object from text fields
+            Date spinnerDate = (Date)clockSpinner.getValue();
+            LocalDateTime passDate = LocalDateTime.ofInstant(spinnerDate.toInstant(), ZoneId.systemDefault());
             Observation addedObservation = new Observation(
-                    (Date)clockSpinner.getValue(),
+                    passDate,
                     treatmentTextField.getText(),//treatment
                     conditionTextField.getText(),//condition
                     Double.valueOf(temperTextField.getText())//temperature            
@@ -374,7 +379,7 @@ public class MainWindow extends JFrame {
         //update gui text controls with data from selected Observation object
         conditionTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryCondition());
         treatmentTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTreatment());
-        dateTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryDate().getTime().toString());
+        dateTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryDate().toString());
         temperTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTemp().toString());        
         //enable edit, delete button and disable add button
         editButton.setEnabled(true);
