@@ -2,6 +2,7 @@
  */
 package HealthObservationExaminationThree;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -26,7 +27,7 @@ public class Observations
     
     /**
      * returns the List observations
-     * @return  observations 
+     * @return  observations a List of the Observation objects
      */
     public List<Observation> getObservations() 
     {
@@ -35,7 +36,7 @@ public class Observations
 
     /**
      * sets the List observations in the class equal to the sent List via parameter
-     * @param observations
+     * @param observations is the List of Observation objects to use
      */
     public void setObservations(List<Observation> observations) 
     {
@@ -43,54 +44,61 @@ public class Observations
     }
     /**
      * Returns the average temperature of all observations
+     * @return a Double object
      */
     public Double getObservationsAverageTemp() 
     {
+        Double averageTemp = 0.0;
+        Double totalTemp = 0.0;
         if(!observations.isEmpty())
-        {
-            Double averageTemp = 0.0;
+        {           
             int numObser = 0;
-            for (Object loopObject : observations)
-            {
-                Observation currentObservation = (Observation)loopObject;          
-                averageTemp =+currentObservation.getEntryTemp();
-                numObser++;       
-            }
-            return averageTemp = averageTemp/numObser;
+            for (Observation currentObservation : observations)
+            {       
+                totalTemp = totalTemp + currentObservation.getEntryTemp();
+                numObser++;   
+                      System.out.println("number  " + numObser);
+            }            
+            averageTemp = totalTemp/numObser;
+            System.out.println("total " + totalTemp.toString());
+            System.out.println("average" + averageTemp.toString());
+            return averageTemp ;
         }
-        return 0.0;
+        return averageTemp;
     }
     /**
      * Returns the highest temperature of all observations
      */
     public Double getObservationsHighestTemp() 
     {
+        //inner comparator based on temperature of Observation record
         class temperatureCompare implements Comparator<Observation>
         {
             public int compare(Observation a, Observation b)
             {
                     return (a.getEntryTemp().compareTo(b.getEntryTemp()));
-            }
-        
+            }       
         }
+        Double highestTemp = 0.0;
         if(!observations.isEmpty())
         {
-//            Double highestTemp = 0.0;
-            
-                    observations.sort(new temperatureCompare());
-                     Double highestTemp = observations.get(0).getEntryTemp();
-                     System.out.println("highest temp" +highestTemp);
-                     return highestTemp;
-//            int numObser = 0;
-//            
-//            for (Object loopObject : observations)
-//            {
-//                Observation currentObservation = (Observation)loopObject;          
-//                highestTemp =+currentObservation.getEntryTemp();
-//                numObser++;       
-//            }
-//            return averageTemp = averageTemp/numObser;
+            Observation high = Collections.max(observations, new temperatureCompare());
+            highestTemp = high.getEntryTemp();
+            System.out.println("highest temp" +highestTemp);
+            return highestTemp;
         }
-        return 0.0;
+        return highestTemp;
+    }
+    
+    public void sortObservationsByDate() 
+    {
+        class dateCompare implements Comparator<Observation>
+        {
+            public int compare(Observation a, Observation b)
+            {
+                    return (a.getEntryDate().compareTo(b.getEntryDate()));
+            }   
+        }
+        observations.sort(new dateCompare());
     }
 }
