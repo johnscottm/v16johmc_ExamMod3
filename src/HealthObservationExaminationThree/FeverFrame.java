@@ -12,6 +12,7 @@ import javax.swing.JList;
  *  A class to show a view of health observation data dealing with temperature and date.
  * GUI displays a JList in its own JFrame.
  * @author John McInnes
+ * @version June 25, 2016
  */
 class FeverFrame extends JFrame{
     // create constants for window dimensions
@@ -22,7 +23,7 @@ class FeverFrame extends JFrame{
     /**
     * FeverFrame class constructor. 
     * @param observationsList is an ArrayList of Observation objects 
-    */ 
+    *@version June 25, 2016*/ 
     public FeverFrame (ArrayList observationsList)
 
     {    
