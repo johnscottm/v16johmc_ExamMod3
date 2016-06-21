@@ -20,8 +20,9 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 /**
- * A class to create a health observations application with GUI
+ * A class to create a health observationsWrapper application with GUI
  * @author John McInnes
+ * @version June 25, 2016
  */
 public class MainWindow extends JFrame {
     //declare fields for GUI and for data
@@ -56,7 +57,8 @@ public class MainWindow extends JFrame {
     private FeverFrame feverWindow;
     private JComboBox observationSelectionComboBox;
     //data structures
-    private Observations observations;
+    private Observations observationsWrapper;
+    private ArrayList observationsListCopy;
     
    /**
     * buildPanel method instantiates GUI controls; JButtons, JCombox, JTextField, JFrame
@@ -126,7 +128,8 @@ public class MainWindow extends JFrame {
         cancelButton = new JButton("Clear Text Boxes");
         feverWindowButton = new JButton("Show Fever Window");   
         //windows
-        feverWindow = new FeverFrame( (ArrayList)observations.getObservations());
+        observationsListCopy = (ArrayList) observationsWrapper.getCopyObservations(observationsWrapper.getObservations());
+        feverWindow = new FeverFrame( observationsListCopy );
         //event handler listeners
         addButton.addActionListener(new AddButtonListener());
         deleteButton.addActionListener(new DeleteButtonListener());
@@ -181,9 +184,9 @@ public class MainWindow extends JFrame {
             System.out.print(healthData);
             JAXBContext context = JAXBContext.newInstance(Observations.class );
             Unmarshaller unmarshaller = context.createUnmarshaller();
-            observations = (Observations)unmarshaller.unmarshal(healthData);
+            observationsWrapper = (Observations)unmarshaller.unmarshal(healthData);
             System.out.println("Observations created" );
-            System.out.println(observations.getObservations().toString());
+            System.out.println(observationsWrapper.getObservations().toString());
         } 
         catch (JAXBException ex) 
         {
@@ -204,11 +207,11 @@ public class MainWindow extends JFrame {
             JAXBContext context = JAXBContext.newInstance(Observations.class);
             observationsMarshaller = context.createMarshaller();
             observationsMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);                                   
-            observationsMarshaller.marshal(observations, System.out);
+            observationsMarshaller.marshal(observationsWrapper, System.out);
             // Write to File
              System.out.println("save");
              File healthData = new File(saveFileName);
-             observationsMarshaller.marshal(observations, healthData );
+             observationsMarshaller.marshal(observationsWrapper, healthData );
         }
         catch (JAXBException ex) 
         {
@@ -290,8 +293,8 @@ public class MainWindow extends JFrame {
         //Observation startupObservation = new Observation();
         ArrayList startupArray  = new ArrayList();
         //startupArray.add(startupObservation);
-        observations = new Observations();
-        observations.setObservations(startupArray);
+        observationsWrapper = new Observations();
+        observationsWrapper.setObservations(startupArray);
         healthPanel = new JPanel();
         buildPanel();
         this.add(healthPanel);           
@@ -301,14 +304,16 @@ public class MainWindow extends JFrame {
     * updateGUI method resets the observationSelectionComboBox GUI control with new data 
     */
     private void updateGUI(){ 
-        observations.sortObservationsByDate();
-        observationSelectionComboBox.setModel(new DefaultComboBoxModel(((ArrayList)(observations.getObservations())).toArray()));
+        observationsWrapper.sortObservationsByDate();
+        //set the data for the combobox using a copy of the observationsWrapper
+        ArrayList observationsListCopy = (ArrayList) observationsWrapper.getCopyObservations(observationsWrapper.getObservations());
+        observationSelectionComboBox.setModel(new DefaultComboBoxModel( observationsListCopy.toArray() ) );
         observationSelectionComboBox.setSelectedIndex(-1);
         clearObservationTextFields();
         //update the fever window Jlist component datat
-        feverWindow.setFeverList((ArrayList)observations.getObservations());
-        observations.getObservationsAverageTemp();
-        observations.getObservationsHighestTemp();
+        feverWindow.setFeverList(observationsListCopy);
+        observationsWrapper.getObservationsAverageTemp();
+        observationsWrapper.getObservationsHighestTemp();
     }
      /**
     * after cancelButton activated clear text fields, enable addButton
@@ -345,8 +350,9 @@ public class MainWindow extends JFrame {
     * GUI method to delete Observation object data from selection by user
     */
     private void deleteButtonObservationData() {
-        //remove Observation object from observations.getObservations() 
-        observations.getObservations().remove(observationSelectionComboBox.getSelectedIndex());
+        //remove Observation object from observationsWrapper.getObservations() 
+        observationsListCopy.remove(observationSelectionComboBox.getSelectedIndex());
+        observationsWrapper.setObservations(observationsListCopy);
         //disable buttons to edit and delete observation, enable add button, update data display
         deleteButton.setEnabled(false);
         editButton.setEnabled(false);
@@ -374,7 +380,8 @@ public class MainWindow extends JFrame {
                     Double.valueOf(temperTextField.getText())//temperature            
             );
             //add Observation to ArrayList
-            observations.getObservations().add(addedObservation);   
+            observationsListCopy.add(addedObservation); 
+            observationsWrapper.setObservations(observationsListCopy);
             //disable buttons to edit and delete observation, enable add button, update data display
             deleteButton.setEnabled(false);
             editButton.setEnabled(false);
@@ -391,11 +398,11 @@ public class MainWindow extends JFrame {
     private void displaySelectedObservationData() 
     {
         //update gui text controls with data from selected Observation object
-        conditionTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryCondition());
-        treatmentTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTreatment());
+        conditionTextField.setText(observationsWrapper.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryCondition());
+        treatmentTextField.setText(observationsWrapper.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTreatment());
         DateTimeFormatter customDate = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm");
-        dateTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryDate().format(customDate));
-        temperTextField.setText(observations.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTemp().toString());        
+        dateTextField.setText(observationsWrapper.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryDate().format(customDate));
+        temperTextField.setText(observationsWrapper.getObservations().get(observationSelectionComboBox.getSelectedIndex()).getEntryTemp().toString());        
         //enable edit, delete button and disable add button
         editButton.setEnabled(true);
         deleteButton.setEnabled(true);
@@ -412,7 +419,7 @@ public class MainWindow extends JFrame {
         if (inputValidation())
         {
         //get a reference to the appropriate Observation object based on selection in GUI
-        Observation toUpdate = observations.getObservations().get(observationSelectionComboBox.getSelectedIndex());
+        Observation toUpdate = observationsWrapper.getObservations().get(observationSelectionComboBox.getSelectedIndex());
         //invoke setter methods of Observation object to update
         //todo perform error checks
         toUpdate.setEntryTemp(Double.valueOf(temperTextField.getText()));
@@ -460,7 +467,7 @@ public class MainWindow extends JFrame {
     }
 
         /**
-        * Inner event listener class for GUI button
+        * Inner event listener class for Add GUI button 
         */
         private class AddButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
@@ -469,7 +476,7 @@ public class MainWindow extends JFrame {
             }
         }
         /**
-        * Inner event listener class for GUI button
+        * Inner event listener class for Delete GUI button
         */
         private class DeleteButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
@@ -483,7 +490,7 @@ public class MainWindow extends JFrame {
             }
         } 
         /**
-        * Inner event listener class for GUI button
+        * Inner event listener class for Edit GUI button
         */   
         private class EditButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
@@ -497,7 +504,7 @@ public class MainWindow extends JFrame {
         }
         /**
         * Inner event listener class for GUI button save
-        * Creates a JFileChooser to allow user to create a file to save
+        *  invokes saveFile method to open a data file for saving
         */    
         private class SaveButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
@@ -507,7 +514,7 @@ public class MainWindow extends JFrame {
         
                 /**
         * Inner event listener class for GUI button open
-        * invokes fileOpen method to open a data file
+        * invokes fileOpen method to open a data file for reading
         */    
         private class OpenButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
@@ -516,7 +523,7 @@ public class MainWindow extends JFrame {
         }
      
         /**
-        * Inner event listener class for GUI button
+        * Inner event listener class for Cancel, Clear GUI button
         */  
         private class CancelButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
@@ -525,7 +532,7 @@ public class MainWindow extends JFrame {
             }
         } 
         /**
-        * Inner event listener class for GUI button
+        * Inner event listener class for Fever Windw GUI button
         */          
          private class FeverButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
@@ -534,7 +541,7 @@ public class MainWindow extends JFrame {
             }
         }        
         /**
-        * Inner event listener class for GUI JComboBox
+        * Inner event listener class for Selection GUI JComboBox
         */  
          private class ItemSelectedListener implements java.awt.event.ItemListener {
             public void itemStateChanged(ItemEvent event)
