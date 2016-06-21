@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  * A class to assist JAXB library in creating LocalDateTime objects
  * as it has no built in recognition of the class
  * @author John McInnes
+ * @version June 25, 2016
  */
 public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime>
 {
