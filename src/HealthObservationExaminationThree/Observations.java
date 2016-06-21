@@ -2,6 +2,7 @@
  */
 package HealthObservationExaminationThree;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -13,7 +14,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * A wrapper class for the List of root element Observation.
  * allows better operation of JAXB library to save XML text file of data
+ * Necessary to allow JAXB library to read and create objects to and from XML text
+ * although a java library it breaks object oriented encapsulation principles in usage
+ * by giving direct access to its private fields
  * @author John McInnes
+ * @version June 25, 2016
  */
 //JAXB annotations for saving and recreating objects using XML text file
 @XmlRootElement(name = "observations")
@@ -27,13 +32,27 @@ public class Observations
     
     /**
      * returns the List observations
+     * here for JAXB operation
      * @return  observations a List of the Observation objects
      */
     public List<Observation> getObservations() 
     {
         return observations;
     }
-
+    /**
+     * returns a deep copy of the List observations
+     * @return  observations a List of the Observation objects
+     */
+    public List<Observation> getCopyObservations(List<Observation> listToCopy) 
+    {
+        List<Observation> deepCopy =  new ArrayList<>();
+        for(Observation originalObservation : listToCopy)
+        {
+            Observation ObservationCopy = new Observation(originalObservation);
+            deepCopy.add(ObservationCopy);        
+        }
+        return deepCopy;
+    }
     /**
      * sets the List observations in the class equal to the sent List via parameter
      * @param observations is the List of Observation objects to use
