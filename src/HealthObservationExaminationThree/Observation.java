@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 /**
  * Observation class to hold health observation data and calculation methods.
  * @author John McInnes
+ * @version June 25, 2016
  */
 class Observation  
 {
@@ -53,7 +54,18 @@ class Observation
     public Observation(String enteredTreatment, String enteredCondition, Double enteredTemp) {
         this(LocalDateTime.now(), enteredTreatment, enteredCondition, enteredTemp);                    
     }
-
+    /**
+    * Observation class deep copy constructor.
+    * Creates new Double and LocalDateTime objects from existing references
+    * returning a true copy with no references
+    * @param objectToCopy the Observation object to duplicate
+    */   
+    public Observation(Observation objectToCopy) {
+        this.entryDate =  objectToCopy.getEntryDate().plusNanos(0);
+        this.entryTreatment = objectToCopy.getEntryTreatment(); 
+        this.entryCondition = objectToCopy.getEntryCondition();
+        this.entryTemp = Double.valueOf(objectToCopy.getEntryTemp().doubleValue());                  
+    }
 
     /**
      * Get the value of entryCondition
