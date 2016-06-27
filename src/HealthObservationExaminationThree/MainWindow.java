@@ -3,6 +3,10 @@
 package HealthObservationExaminationThree;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import static java.awt.FlowLayout.LEFT;
 import javax.swing.*;
 import java.awt.event.*;
 
@@ -26,23 +30,35 @@ import javax.xml.bind.Unmarshaller;
  */
 public class MainWindow extends JFrame {
     //declare fields for GUI and for data
+    //Jpanels for containing controls
     private JPanel healthPanel;
     private JPanel healthPanelN;
     private JPanel healthPanelS;
     private JPanel healthPanelE;
     private JPanel healthPanelW;
     private JPanel healthPanelC;
+    //box layouts for positioning within healthPanels
+    private Container healthPanelBox;
+    private Container healthPanelBoxLabels;
+    private Container healthPanelBoxTextFields;
+    private Container healthPanelBoxRecordButtons;
+    private Container healthPanelBoxSelect;
+    private Container healthPanelBoxAverageTemp;
     //labels for GUI text fields, and other displayable
     private JLabel dateLabel;
     private JLabel conditionLabel;
     private JLabel treatmentLabel;
     private JLabel temperLabel;
     private JLabel obsLabel;
+    private JLabel highTempLabel;
+    private JLabel averageTempLabel;
     //text fields
     private JTextField dateTextField;
     private JTextField treatmentTextField;
     private JTextField temperTextField;
     private JTextField conditionTextField;
+    private JLabel highTempTextLabel;
+    private JLabel averageTempTextLabel;
     //buttons
     private JButton addButton;
     private JButton editButton;
@@ -59,32 +75,11 @@ public class MainWindow extends JFrame {
     //data structures
     private Observations observationsWrapper;
     private ArrayList observationsListCopy;
-    
    /**
-    * buildPanel method instantiates GUI controls; JButtons, JCombox, JTextField, JFrame
-    * and registers and instantiates all appropriate event listeners..
+    * buildClockSpinner sets up clockSpinner control
     */
-    private void buildPanel() throws JAXBException {
-        //labels and text fields
-        dateLabel = new JLabel();
-        conditionLabel = new JLabel();
-        treatmentLabel = new JLabel();
-        temperLabel = new JLabel();
-        obsLabel = new JLabel();
-        dateTextField = new JTextField(20);
-        conditionTextField = new JTextField(15);
-        treatmentTextField = new JTextField(15);
-        temperTextField = new JTextField(5);
-        //set date to not editable
-        dateTextField.setEditable(false);
-        //set label control text
-        dateLabel.setText("     Date");
-        conditionLabel.setText("     Condition");
-        treatmentLabel.setText("     Treatment");
-        temperLabel.setText("     Temperature");
-        obsLabel.setText("Select Observation: ");
-        //text display gui controls
-        observationSelectionComboBox = new JComboBox();
+    private void buildClockSpinner()
+    {    
         //create date and time selector
         //get a Calendar object set to current time
         Calendar calendarJSpinner = Calendar.getInstance();
@@ -98,11 +93,48 @@ public class MainWindow extends JFrame {
                 startingDateJSpinner,earliestDate,latestDate,Calendar.YEAR);
         //instantiate clockSpinner using created SpinnerDateModel object
         clockSpinner = new JSpinner (JSpinnerDateModel);
-        clockSpinner.setSize(dateTextField.getPreferredSize());
+        clockSpinner.setOpaque(true);  
         //Set the clockSpinner to proper format and make it not editable to start
         JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(clockSpinner, "MMM dd, yyyy HH:mm");
         timeEditor.getTextField().setEditable(false);
-        clockSpinner.setEditor(timeEditor);
+        clockSpinner.setEditor(timeEditor);        
+    }
+    
+   /**
+    * buildPanel method instantiates GUI controls; JButtons, JCombox, JTextField, JFrame
+    * and registers and instantiates all appropriate event listeners..
+    */
+    private void buildPanel() throws JAXBException {
+        //labels and text fields
+        dateLabel = new JLabel();
+        conditionLabel = new JLabel();
+        treatmentLabel = new JLabel();
+        temperLabel = new JLabel();
+        obsLabel = new JLabel();
+        averageTempLabel = new JLabel();
+        highTempLabel = new JLabel();
+        dateTextField = new JTextField(20);
+        conditionTextField = new JTextField(15);
+        treatmentTextField = new JTextField(15);
+        temperTextField = new JTextField(5);
+        averageTempTextLabel = new JLabel("None");
+        highTempTextLabel = new JLabel("None");       
+        //set date to not editable
+        dateTextField.setEditable(false);
+        //set label control text
+        dateLabel.setText("     Date");
+        conditionLabel.setText("     Condition");
+        treatmentLabel.setText("     Treatment");
+        temperLabel.setText("     Temperature");
+        obsLabel.setText("Select Observation: ");
+        averageTempLabel.setText("Average temperature");
+        highTempLabel.setText("High Temperature");
+        //text display gui controls
+        String [] comboBoxMessage = {"Open file or add new record"};
+        observationSelectionComboBox = new JComboBox(comboBoxMessage);
+        observationSelectionComboBox.setEnabled(false);
+        
+        buildClockSpinner();
         //add a layout manager
         healthPanel.setLayout(new BorderLayout());
         //create subpanels
@@ -111,6 +143,12 @@ public class MainWindow extends JFrame {
         healthPanelE = new JPanel();
         healthPanelW = new JPanel();
         healthPanelC = new JPanel(); 
+        //create box layout
+        healthPanelBoxSelect = Box.createHorizontalBox();
+        healthPanelBoxAverageTemp = Box.createHorizontalBox();
+        healthPanelBoxLabels = Box.createVerticalBox();
+        healthPanelBoxTextFields = Box.createVerticalBox();
+        healthPanelBoxRecordButtons = Box.createVerticalBox();
         // add a border and a title to healthPanel
         healthPanel.setBorder(BorderFactory.createTitledBorder("Health Record Viewer"));
         //add Panels
@@ -139,36 +177,78 @@ public class MainWindow extends JFrame {
         cancelButton.addActionListener(new CancelButtonListener());
         feverWindowButton.addActionListener(new FeverButtonListener());
         observationSelectionComboBox.addItemListener(new ItemSelectedListener());
+        //add controls to select box
+        healthPanelBoxSelect.add(obsLabel);
+        healthPanelBoxSelect.add(Box.createHorizontalStrut(10));
+        healthPanelBoxSelect.add(observationSelectionComboBox);
+        healthPanelBoxSelect.add(Box.createHorizontalStrut(30));
+        //add controls to average temp box
+        healthPanelBoxAverageTemp.add(highTempLabel);
+        healthPanelBoxAverageTemp.add(Box.createHorizontalStrut(10));
+        healthPanelBoxAverageTemp.add(highTempTextLabel);
+        healthPanelBoxAverageTemp.add(Box.createHorizontalStrut(20));
+        healthPanelBoxAverageTemp.add(averageTempLabel);
+        healthPanelBoxAverageTemp.add(Box.createHorizontalStrut(10));
+        healthPanelBoxAverageTemp.add(averageTempTextLabel);
+        
+        //add labels to label box
+        healthPanelBoxLabels.add(Box.createVerticalStrut(15));
+        healthPanelBoxLabels.add(dateLabel);
+        healthPanelBoxLabels.add(Box.createVerticalStrut(15));
+        healthPanelBoxLabels.add(temperLabel);
+        healthPanelBoxLabels.add(Box.createVerticalStrut(15));
+        healthPanelBoxLabels.add(conditionLabel);
+        healthPanelBoxLabels.add(Box.createVerticalStrut(15));
+        healthPanelBoxLabels.add(treatmentLabel);      
+        //add controls to text fields  box
+        healthPanelBoxTextFields.add(Box.createVerticalStrut(10));
+        healthPanelBoxTextFields.add(dateTextField);
+        healthPanelBoxTextFields.add(Box.createVerticalStrut(10));
+        healthPanelBoxTextFields.add(clockSpinner);
+        healthPanelBoxTextFields.add(Box.createVerticalStrut(10));
+        healthPanelBoxTextFields.add(temperTextField);
+        healthPanelBoxTextFields.add(Box.createVerticalStrut(10));
+        healthPanelBoxTextFields.add(conditionTextField);
+        healthPanelBoxTextFields.add(Box.createVerticalStrut(10));
+        healthPanelBoxTextFields.add(treatmentTextField);   
+        //add controls to buttons for record  box
+        healthPanelBoxRecordButtons.add(Box.createVerticalStrut(15));
+        healthPanelBoxRecordButtons.add(addButton);
+        healthPanelBoxRecordButtons.add(Box.createVerticalStrut(5));
+        healthPanelBoxRecordButtons.add(editButton);
+        healthPanelBoxRecordButtons.add(Box.createVerticalStrut(5));
+        healthPanelBoxRecordButtons.add(deleteButton);
+        healthPanelBoxRecordButtons.add(Box.createVerticalStrut(5));
+        healthPanelBoxRecordButtons.add(cancelButton);
         //add controls to panel
         //add text fields and labels
         //by border panel regions
-        healthPanelN.add(obsLabel);
-        healthPanelN.add(observationSelectionComboBox);
-        healthPanelW.add(dateLabel);
-        healthPanelW.add(clockSpinner);
-        healthPanelW.add(dateTextField);
-        healthPanelW.add(temperLabel);
-        healthPanelW.add(temperTextField);
-        healthPanelC.add(treatmentLabel);
-        healthPanelC.add(treatmentTextField);
-        healthPanelE.add(conditionLabel);
-        healthPanelE.add(conditionTextField);
-
+        healthPanelN.add(healthPanelBoxSelect);
+        healthPanelN.add(healthPanelBoxAverageTemp);
+        healthPanelN.setLayout(new FlowLayout(LEFT));
+        healthPanelW.add(healthPanelBoxLabels);
+        healthPanelW.add(healthPanelBoxTextFields);
+        healthPanelC.add(healthPanelBoxRecordButtons);
         //south panel add buttons
         healthPanelS.add(saveButton);
-        healthPanelN.add(addButton);
-        healthPanelN.add(editButton);
-        healthPanelN.add(deleteButton);
         healthPanelS.add(saveButton);
         healthPanelS.add(openButton);
-        healthPanelN.add(cancelButton);
+
         healthPanelS.add(feverWindowButton);
-        
+//        healthPanelN.add(highTempLabel);
+//        healthPanelN.add(highTempTextLabel);
+//        healthPanelN.add(averageTempLabel);
+//        healthPanelN.add(averageTempTextLabel);
         //set initial button state disabled
         editButton.setEnabled(false);
         deleteButton.setEnabled(false);
         cancelButton.setEnabled(false);
         dateTextField.setVisible(false);
+        //highTempTextField.setEnabled(false);
+        //averageTempTextField.setEnabled(false);
+        highTempTextLabel.setForeground(Color.red);
+        averageTempTextLabel.setForeground(Color.blue);
+
     }
     
     /**
@@ -226,8 +306,8 @@ public class MainWindow extends JFrame {
     public MainWindow () throws JAXBException
     {
         // create constants for window dimensions
-        final int WINDOWHEIGHT = 200;
-        final int WINDOWWIDTH = 1100;
+        final int WINDOWHEIGHT = 400;
+        final int WINDOWWIDTH = 800;
     
         // set dimensions of window object
         this.setSize(WINDOWWIDTH, WINDOWHEIGHT);
@@ -309,24 +389,20 @@ public class MainWindow extends JFrame {
         ArrayList observationsListCopy = (ArrayList) observationsWrapper.getCopyObservations(observationsWrapper.getObservations());
         observationSelectionComboBox.setModel(new DefaultComboBoxModel( observationsListCopy.toArray() ) );
         observationSelectionComboBox.setSelectedIndex(-1);
+        observationSelectionComboBox.setEnabled(true);
         clearObservationTextFields();
         //update the fever window Jlist component datat
         feverWindow.setFeverList(observationsListCopy);
-        observationsWrapper.getObservationsAverageTemp();
-        observationsWrapper.getObservationsHighestTemp();
+        averageTempTextLabel.setText(observationsWrapper.getObservationsAverageTemp());
+        highTempTextLabel.setText(observationsWrapper.getObservationsHighestTemp());
     }
      /**
     * after cancelButton activated clear text fields, enable addButton
     * disable edit, delete, cancel buttons, clear selected indexes
     */
-    private void cancelButtonClearObservation() {
+    private void clearButtonClearObservation() {
         //invoke clear method for text fields
-        clearObservationTextFields();
-        //enable and disable appropriate buttons
-        addButton.setEnabled(true);
-        deleteButton.setEnabled(false);
-        editButton.setEnabled(false);
-        cancelButton.setEnabled(false);       
+        clearObservationTextFields();      
         updateGUI();
     }
      /**
@@ -345,6 +421,7 @@ public class MainWindow extends JFrame {
         dateTextField.setVisible(false);
         clockSpinner.setVisible(true);
         clockSpinner.setEnabled(true);
+        clockSpinner.setOpaque(true);
     }
     /**
     * GUI method to delete Observation object data from selection by user
@@ -359,6 +436,8 @@ public class MainWindow extends JFrame {
         addButton.setEnabled(true);
         dateTextField.setVisible(false);
         clockSpinner.setVisible(true);
+        clockSpinner.setEnabled(true);
+        clockSpinner.setOpaque(true);
         updateGUI();
     }
 
@@ -439,7 +518,9 @@ public class MainWindow extends JFrame {
     private boolean inputValidation() {
         //check text fields for some input
         // check temperature for appropriate value
+        
         String temperatureValue = temperTextField.getText();
+        temperatureValue.trim();
         Double doubleTempValue = 0.0;
         String treatmentValue = treatmentTextField.getText();
         String conditionValue = conditionTextField.getText();
@@ -447,6 +528,12 @@ public class MainWindow extends JFrame {
         if (treatmentValue.isEmpty()  || conditionValue.isEmpty() || temperatureValue.isEmpty()) 
         { 
             JOptionPane.showMessageDialog(healthPanel, "Text boxes cannot be empty");
+            return false;
+        }
+        //check length of input
+        if(temperatureValue.length()>5)
+        { 
+            JOptionPane.showMessageDialog(healthPanel, "Please enter a temperature value of less than 4 digits");
             return false;
         }
         //check if input is in numeric form
@@ -528,7 +615,7 @@ public class MainWindow extends JFrame {
         private class CancelButtonListener implements ActionListener{
             public void actionPerformed(ActionEvent e){
                 System.out.println("cancel");
-                cancelButtonClearObservation();
+                clearButtonClearObservation();
             }
         } 
         /**
