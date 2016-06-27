@@ -2,6 +2,7 @@
  */
 package HealthObservationExaminationThree;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -65,10 +66,13 @@ public class Observations
      * Returns the average temperature of all observations
      * @return a Double object
      */
-    public Double getObservationsAverageTemp() 
+    public String getObservationsAverageTemp() 
     {
         Double averageTemp = 0.0;
         Double totalTemp = 0.0;
+        DecimalFormat twoPlaceDecimal = new DecimalFormat("###.##");
+        String averageTempString = new String();
+        averageTempString = twoPlaceDecimal.format(averageTemp);
         if(!observations.isEmpty())
         {           
             int numObser = 0;
@@ -78,17 +82,18 @@ public class Observations
                 numObser++;   
                       System.out.println("number  " + numObser);
             }            
-            averageTemp = totalTemp/numObser;
+            averageTemp = totalTemp/numObser;          
+            averageTempString = twoPlaceDecimal.format(averageTemp);
             System.out.println("total " + totalTemp.toString());
-            System.out.println("average" + averageTemp.toString());
-            return averageTemp ;
+            System.out.println("average" + averageTempString);
+            return averageTempString ;
         }
-        return averageTemp;
+        return averageTempString;
     }
     /**
      * Returns the highest temperature of all observations
      */
-    public Double getObservationsHighestTemp() 
+    public String getObservationsHighestTemp() 
     {
         //inner comparator based on temperature of Observation record
         class temperatureCompare implements Comparator<Observation>
@@ -99,14 +104,18 @@ public class Observations
             }       
         }
         Double highestTemp = 0.0;
+        DecimalFormat twoPlaceDecimal = new DecimalFormat("###.##");
+        String highestTempString = new String();
+        highestTempString = twoPlaceDecimal.format(highestTemp);
         if(!observations.isEmpty())
         {
             Observation high = Collections.max(observations, new temperatureCompare());
             highestTemp = high.getEntryTemp();
-            System.out.println("highest temp" +highestTemp);
-            return highestTemp;
+            highestTempString = twoPlaceDecimal.format(highestTemp);
+            System.out.println("highest temp" +highestTempString);
+            return highestTempString;
         }
-        return highestTemp;
+        return highestTempString;
     }
     
     public void sortObservationsByDate() 
